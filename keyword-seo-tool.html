@@ -1,0 +1,1860 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Keyword SEO Decision Tool</title>
+  <style>
+    :root {
+      --bg: #fff3f7;
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-solid: #fffafc;
+      --line: #f0c8d7;
+      --text: #23405f;
+      --muted: #7b6b78;
+      --accent: #d14d86;
+      --accent-soft: #ffe3ee;
+      --shadow: 0 12px 32px rgba(162, 64, 111, 0.10);
+      --success: #166534;
+      --warn: #b45309;
+      --danger: #b91c1c;
+      --s-bg: rgba(22, 101, 52, 0.09);
+      --a-bg: rgba(37, 99, 235, 0.09);
+      --b-bg: rgba(139, 92, 246, 0.10);
+      --c-bg: rgba(180, 83, 9, 0.10);
+      --x-bg: rgba(185, 28, 28, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, #ffeaf2 0, rgba(255,234,242,.8) 20%, transparent 45%),
+        linear-gradient(180deg, #fff7fb 0, #fff1f7 100%);
+    }
+
+    .wrap {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .site-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin: 10px 0 14px;
+    }
+
+    .site-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .site-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.7);
+      color: var(--text);
+      cursor: pointer;
+      transition: .15s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .site-tab-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      cursor: pointer;
+    }
+
+    .site-tab-delete {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: #b93e7a;
+      font-size: 14px;
+      line-height: 1;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .site-tab-delete:hover {
+      background: #ffe0eb;
+      color: var(--danger);
+    }
+
+    .site-tab:hover {
+      transform: translateY(-1px);
+      border-color: #d8b579;
+    }
+
+    .site-tab.active {
+      background: linear-gradient(180deg, #fff8fb 0, #ffe8f1 100%);
+      border-color: #e6a9c1;
+    }
+
+    .site-tab img {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex: 0 0 auto;
+    }
+
+    .site-tab-fallback {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent-soft);
+      color: #b33f78;
+      font-size: 12px;
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .site-tab-label {
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .manage-toggle {
+      min-height: 40px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.68);
+      color: var(--accent);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+
+    .manage-toggle:hover {
+      border-color: #e6a9c1;
+    }
+
+    .manage-panel {
+      display: none;
+      margin-bottom: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .manage-panel.open {
+      display: block;
+    }
+
+    .manage-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .manage-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .manage-sub {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .manage-form {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 120px;
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .site-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 10px;
+    }
+
+    .site-chip-card {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.8);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .site-chip-card img {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .site-chip-meta {
+      min-width: 0;
+    }
+
+    .site-chip-name {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .site-chip-path {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      word-break: break-all;
+    }
+
+    .stack-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .card-head {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.90), rgba(255,255,255,.72));
+    }
+
+    .card-head-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .card-head-sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .card-body {
+      padding: 14px 16px 16px;
+    }
+
+    label {
+      display: block;
+      margin: 0 0 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea,
+    select,
+    button {
+      font: inherit;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      color: var(--text);
+      padding: 9px 11px;
+      outline: none;
+    }
+
+    input[type="date"] {
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+      height: 38px;
+    }
+
+    textarea {
+      height: 150px;
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.4;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+      margin-top: 6px;
+    }
+
+    .input-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .input-actions button {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 8px 13px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #243b63 0, #1c2e4d 100%);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fde5ef;
+      color: #a43d72;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--line);
+    }
+
+    .note {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border: 1px solid #efc0d1;
+      border-radius: 12px;
+      background: #fff5fa;
+      color: #a04b77;
+      font-size: 12px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .history-item {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255,255,255,.78);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .history-item:hover {
+      border-color: #d7b276;
+    }
+
+    .history-item.active {
+      border-color: #e6a9c1;
+      background: #fff6fa;
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .history-date {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .history-title {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .history-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .history-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .history-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #ffe8f1;
+      color: #a43d72;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .history-empty {
+      padding: 12px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .history-delete {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      border: 1px solid #f3c1d3;
+      border-radius: 999px;
+      background: #fff;
+      color: #d14d86;
+      font-size: 16px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .history-delete:hover {
+      background: #ffe8f1;
+    }
+
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .result-head-main {
+      display: grid;
+      gap: 4px;
+    }
+
+    .result-head-side {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .result-tabs {
+      display: inline-flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .result-tab {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      padding: 7px 12px;
+      font-size: 12px;
+    }
+
+    .result-tab.active {
+      background: #12263f;
+      border-color: #12263f;
+      color: #fff;
+    }
+
+    .result-panel[hidden] {
+      display: none;
+    }
+
+    .history-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+    }
+
+    .history-card-sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .history-result-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .history-result-tag {
+      display: inline-flex;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ffe8f1;
+      color: #a43d72;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .result-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .result-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .page-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #b33f78;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .result-save-btn {
+      min-height: 32px;
+      padding: 7px 12px;
+      font-size: 12px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .stat {
+      padding: 12px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.88);
+    }
+
+    .stat-n {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .stat-t {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .table-wrap {
+      overflow-x: hidden;
+      min-height: 0;
+      max-height: none;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th, td {
+      padding: 8px 6px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid #efe2cb;
+      font-size: 12px;
+      background: #fff;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    th {
+      background: #fff8ee;
+      font-size: 12px;
+      white-space: normal;
+    }
+
+    td small {
+      color: var(--muted);
+    }
+
+    .result-table th:nth-child(1),
+    .result-table td:nth-child(1) { width: 22%; }
+    .result-table th:nth-child(2),
+    .result-table td:nth-child(2) { width: 6%; }
+    .result-table th:nth-child(3),
+    .result-table td:nth-child(3) { width: 8%; }
+    .result-table th:nth-child(4),
+    .result-table td:nth-child(4) { width: 10%; }
+    .result-table th:nth-child(5),
+    .result-table td:nth-child(5) { width: 10%; }
+    .result-table th:nth-child(6),
+    .result-table td:nth-child(6) { width: 20%; }
+    .result-table th:nth-child(7),
+    .result-table td:nth-child(7) { width: 12%; }
+    .result-table th:nth-child(8),
+    .result-table td:nth-child(8) { width: 12%; }
+
+    .keyword-main {
+      display: block;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    .keyword-meta {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .empty {
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .p-s { background: var(--s-bg); color: var(--success); }
+    .p-a { background: var(--a-bg); color: #2563eb; }
+    .p-b { background: var(--b-bg); color: #8b5cf6; }
+    .p-c { background: var(--c-bg); color: var(--warn); }
+    .p-x { background: var(--x-bg); color: var(--danger); }
+
+    .yes { color: var(--success); font-weight: 700; }
+    .no { color: var(--danger); font-weight: 700; }
+    .partial { color: var(--warn); font-weight: 700; }
+
+    td select {
+      min-width: 0;
+      height: 32px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1220px) {
+      .summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .manage-form {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        padding: 12px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+      .summary {
+        grid-template-columns: 1fr 1fr;
+      }
+      textarea {
+        height: 160px;
+        min-height: 160px;
+      }
+      .site-tab-label {
+        max-width: 110px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Keyword SEO Decision Tool</h1>
+      <div class="sub">站点在页面顶部切换。每个站点都有自己的独立关键词结果页、状态和保存记录，后续也可以继续新增站点。</div>
+    </div>
+
+    <div class="site-topbar">
+      <div class="site-tabs" id="siteTabs"></div>
+      <button id="manageToggle" class="manage-toggle" type="button">管理站点</button>
+    </div>
+
+    <section id="managePanel" class="manage-panel">
+      <div class="manage-head">
+        <div>
+          <div class="manage-title">新增站点</div>
+          <div class="manage-sub">只要填写站点名称即可。图标路径是可选项，后续你想补的时候再填就行。</div>
+        </div>
+      </div>
+      <div class="manage-form">
+        <div>
+          <label for="newSiteName">站点名称</label>
+          <input id="newSiteName" type="text" placeholder="例如：Pixpop" />
+        </div>
+        <div>
+          <label for="newSiteIcon">图标路径，可选</label>
+          <input id="newSiteIcon" type="text" placeholder="例如：C:\Users\...\APP_ICON.png" />
+        </div>
+        <button id="addSiteBtn" class="btn-secondary" type="button">添加站点</button>
+      </div>
+      <div class="site-list" id="siteList"></div>
+    </section>
+
+    <div class="stack-layout">
+      <section class="card">
+        <div class="card-head">
+          <h2 class="card-head-title">输入</h2>
+          <div class="card-head-sub">当前编辑的内容只属于当前站点，不会影响其他站点。</div>
+        </div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="two-col">
+              <div>
+                <label for="refDate">参考日期</label>
+                <input id="refDate" type="date" lang="en-CA" />
+              </div>
+              <div>
+                <label for="archiveDate">保存日期</label>
+                <input id="archiveDate" type="date" lang="en-CA" />
+              </div>
+            </div>
+
+            <div>
+              <label for="keywords">关键词</label>
+              <textarea id="keywords" placeholder="每行一个关键词，也可以直接粘贴 markdown 表格。"></textarea>
+            </div>
+
+            <div class="toolbar">
+              <label class="checkbox"><input id="sortByPriority" type="checkbox" checked />按优先级排序</label>
+              <label class="checkbox"><input id="keepOrder" type="checkbox" />保留原始顺序</label>
+            </div>
+
+            <div class="input-actions">
+              <button id="generateBtn" class="btn-primary" type="button">生成表格</button>
+              <button id="copyBtn" class="btn-ghost" type="button">复制 Markdown</button>
+              <button id="exportBtn" class="btn-ghost" type="button">导出当前站点 JSON</button>
+            </div>
+
+            <div class="note">
+              默认会按 SERP 常见结果页类型推荐页面：`effects`、`prompt`、`blog` 或 `features`，你也可以在结果表里手动修改。点 `生成表格` 只会在当前结果页生成，并清空输入框；确认后，再到结果页点保存记录。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="result-top">
+            <div class="result-head-main">
+              <div id="resultTitle" class="result-title">结果</div>
+              <div id="resultMeta" class="result-meta">当前站点的独立结果页</div>
+            </div>
+            <div class="result-head-side">
+              <button id="resultSaveBtn" class="btn-secondary result-save-btn" type="button">保存到往期关键词表格</button>
+              <div id="pageChip" class="page-chip">当前站点</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="summary" class="summary"></div>
+          <div class="table-wrap">
+            <table class="result-table">
+              <thead>
+                <tr>
+                  <th>关键词</th>
+                  <th>优先级</th>
+                  <th>是否做</th>
+                  <th>适合页面</th>
+                  <th>适不适合 effects 页</th>
+                  <th>结论</th>
+                  <th>滤镜是否制作</th>
+                  <th>是否分发写手</th>
+                </tr>
+              </thead>
+              <tbody id="resultBody">
+                <tr><td colspan="8" class="empty">还没有生成结果。</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2 class="card-head-title">往期关键词表格</h2>
+          <div class="card-head-sub">这里仅展示你手动保存过的记录，可单独查看或删除。</div>
+        </div>
+        <div class="card-body">
+          <div id="siteHistory" class="history-list"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <div class="history-card-head">
+            <div>
+              <h2 class="card-head-title">历史结果</h2>
+              <div class="history-card-sub">点击下方历史记录，会在这里单独展示那次结果。</div>
+            </div>
+            <div id="historyResultMeta" class="history-result-meta"></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="historySummary" class="summary"></div>
+          <div class="table-wrap">
+            <table class="result-table">
+              <thead>
+                <tr>
+                  <th>关键词</th>
+                  <th>优先级</th>
+                  <th>是否做</th>
+                  <th>适合页面</th>
+                  <th>适不适合 effects 页</th>
+                  <th>结论</th>
+                  <th>滤镜是否制作</th>
+                  <th>是否分发写手</th>
+                </tr>
+              </thead>
+              <tbody id="historyResultBody">
+                <tr><td colspan="8" class="empty">请从上方历史记录中选择一条。</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "keyword-seo-tool-records-v5";
+    const LEGACY_RECORD_KEYS = ["keyword-seo-tool-records-v4", "keyword-seo-tool-archives-v3", "keyword-seo-tool-archives-v2", "keyword-seo-tool-archives-v1"];
+    const SITE_STORAGE_KEY = "keyword-seo-tool-sites-v2";
+    const LEGACY_SITE_KEY = "keyword-seo-tool-sites-v1";
+    const DRAFT_STORAGE_KEY = "keyword-seo-tool-drafts-v2";
+    const SELECTED_SITE_KEY = "keyword-seo-tool-selected-site-v1";
+
+    const DEFAULT_SITES = [
+      { id: "couple-lens", name: "Couple Lens", icon: "" },
+      { id: "beatmo", name: "Beatmo", icon: "" },
+      { id: "vimi", name: "Vimi", icon: "" }
+    ];
+
+    const EVENT_RULES = [
+      { name: "Onam", re: /onam/i, date: "2026-08-26" },
+      { name: "Varalakshmi Vratham", re: /varalakshmi|vratham/i, date: "2026-08-28" },
+      { name: "Merdeka", re: /merdeka|jalur gemilang|hari merdeka/i, date: "2026-08-31" },
+      { name: "Buwan ng Wika", re: /buwan ng wika/i, date: "2026-08-31" },
+      { name: "National Heroes Day", re: /araw ng mga bayani|national heroes day/i, date: "2026-08-31" },
+      { name: "Janmashtami", re: /janmashtami/i, date: "2026-09-04" },
+      { name: "Teachers' Day", re: /teachers'? day/i, date: "2026-09-05" },
+      { name: "Ganesh Chaturthi", re: /ganesh chaturthi|ganpati|ganesh ji/i, date: "2026-09-14" },
+      { name: "Hari Malaysia", re: /hari malaysia/i, date: "2026-09-16" },
+      { name: "MassKara", re: /masskara/i, date: "2026-10-01" },
+      { name: "Sumpah Pemuda", re: /sumpah pemuda/i, date: "2026-10-28" },
+      { name: "Hari Pahlawan", re: /hari pahlawan/i, date: "2026-11-10" }
+    ];
+
+    const PAGE_TYPES = [
+      { value: "effects", label: "effects" },
+      { value: "prompt", label: "prompt" },
+      { value: "blog", label: "blog" },
+      { value: "features", label: "features" }
+    ];
+
+    let currentRows = [];
+    let currentSiteId = "";
+    let selectedRecordId = "";
+    const $ = (id) => document.getElementById(id);
+
+    function toISODate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function parseDate(value) {
+      const [y, m, d] = value.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function diffDays(a, b) {
+      const ms = 24 * 60 * 60 * 1000;
+      return Math.round((parseDate(b) - parseDate(a)) / ms);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function slugify(text) {
+      const base = String(text).trim().toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+      return base || `site-${Date.now()}`;
+    }
+
+    function normalizeIconPath(raw) {
+      const value = String(raw || "").trim();
+      if (!value) return "";
+      if (/^(https?:|file:)/i.test(value)) return value;
+      if (/^[A-Za-z]:[\\/]/.test(value)) {
+        return "file:///" + encodeURI(value.replace(/\\/g, "/"));
+      }
+      return value;
+    }
+
+    function getSiteInitial(name) {
+      return String(name || "?").trim().slice(0, 1).toUpperCase();
+    }
+
+    function setDefaultDates() {
+      const today = toISODate(new Date());
+      $("refDate").value = today;
+      $("archiveDate").value = today;
+    }
+
+    function loadSites() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(SITE_STORAGE_KEY) || "null");
+        if (Array.isArray(raw) && raw.length) {
+          return raw.map(normalizeSiteObject);
+        }
+      } catch {}
+      try {
+        const legacy = JSON.parse(localStorage.getItem(LEGACY_SITE_KEY) || "null");
+        if (Array.isArray(legacy) && legacy.length) {
+          const sites = legacy.map(item => typeof item === "string" ? { id: slugify(item), name: item, icon: "" } : normalizeSiteObject(item));
+          saveSites(sites);
+          return sites;
+        }
+      } catch {}
+      saveSites(DEFAULT_SITES);
+      return DEFAULT_SITES.slice();
+    }
+
+    function normalizeSiteObject(site) {
+      const name = String(site?.name || site?.id || "").trim() || `Site ${Date.now()}`;
+      return {
+        id: String(site?.id || slugify(name)),
+        name,
+        icon: String(site?.icon || "").trim()
+      };
+    }
+
+    function saveSites(sites) {
+      localStorage.setItem(SITE_STORAGE_KEY, JSON.stringify(sites.map(normalizeSiteObject)));
+    }
+
+    function loadDrafts() {
+      try {
+        return JSON.parse(localStorage.getItem(DRAFT_STORAGE_KEY) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveDrafts(drafts) {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(drafts));
+    }
+
+    function loadRecords() {
+      try {
+        const current = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (Array.isArray(current)) return current;
+      } catch {}
+      for (const key of LEGACY_RECORD_KEYS) {
+        try {
+          const legacy = JSON.parse(localStorage.getItem(key) || "null");
+          if (Array.isArray(legacy)) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(legacy));
+            return legacy;
+          }
+        } catch {}
+      }
+      return [];
+    }
+
+    function saveRecords(records) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+
+    function getSiteById(siteId) {
+      return loadSites().find(site => site.id === siteId) || loadSites()[0];
+    }
+
+    function getRecordSiteKey(record) {
+      return String(record.siteId || record.site || "");
+    }
+
+    function siteMatches(record, site) {
+      const key = getRecordSiteKey(record);
+      return key === site.id || key === site.name;
+    }
+
+    function setCurrentSite(siteId, options = {}) {
+      currentSiteId = siteId;
+      selectedRecordId = "";
+      localStorage.setItem(SELECTED_SITE_KEY, siteId);
+      if (!options.silentHash) {
+        location.hash = `site=${encodeURIComponent(siteId)}`;
+      }
+      renderSiteTabs();
+      renderSiteList();
+      loadCurrentSiteState();
+      renderHistory();
+      updateResultHeader();
+    }
+
+    function getSelectedSiteId() {
+      const hashMatch = location.hash.match(/site=([^&]+)/);
+      const fromHash = hashMatch ? decodeURIComponent(hashMatch[1]) : "";
+      if (fromHash && loadSites().some(site => site.id === fromHash)) return fromHash;
+      const stored = localStorage.getItem(SELECTED_SITE_KEY) || "";
+      if (stored && loadSites().some(site => site.id === stored)) return stored;
+      return loadSites()[0].id;
+    }
+
+    function renderSiteTabs() {
+      const sites = loadSites();
+      $("siteTabs").innerHTML = sites.map(site => {
+        const icon = normalizeIconPath(site.icon);
+        const active = site.id === currentSiteId ? "active" : "";
+        const canDelete = sites.length > 1;
+        return `
+          <div class="site-tab ${active}">
+            <button class="site-tab-main" type="button" data-site-id="${escapeHtml(site.id)}">
+              ${icon ? `<img src="${escapeHtml(icon)}" alt="${escapeHtml(site.name)}" />` : `<span class="site-tab-fallback">${escapeHtml(getSiteInitial(site.name))}</span>`}
+              <span class="site-tab-label">${escapeHtml(site.name)}</span>
+            </button>
+            ${canDelete ? `<button class="site-tab-delete" type="button" title="删除站点" data-delete-site-id="${escapeHtml(site.id)}">×</button>` : ""}
+          </div>
+        `;
+      }).join("");
+      document.querySelectorAll(".site-tab-main").forEach(node => {
+        node.addEventListener("click", () => setCurrentSite(node.getAttribute("data-site-id")));
+      });
+      document.querySelectorAll(".site-tab-delete").forEach(node => {
+        node.addEventListener("click", (event) => {
+          event.stopPropagation();
+          deleteSite(node.getAttribute("data-delete-site-id"));
+        });
+      });
+    }
+
+    function renderSiteList() {
+      const sites = loadSites();
+      $("siteList").innerHTML = sites.map(site => {
+        const icon = normalizeIconPath(site.icon);
+        return `
+          <div class="site-chip-card">
+            ${icon ? `<img src="${escapeHtml(icon)}" alt="${escapeHtml(site.name)}" />` : `<span class="site-tab-fallback">${escapeHtml(getSiteInitial(site.name))}</span>`}
+            <div class="site-chip-meta">
+              <div class="site-chip-name">${escapeHtml(site.name)}</div>
+              <div class="site-chip-path">${site.icon ? escapeHtml(site.icon) : "暂未设置图标路径"}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function updateResultHeader() {
+      const site = getSiteById(currentSiteId);
+      $("resultTitle").textContent = `${site.name} 结果页`;
+      $("resultMeta").textContent = "这个站点的关键词、状态和保存记录都与其他站点独立。";
+      $("pageChip").textContent = site.name;
+    }
+
+    function getDraftKey(site) {
+      return site.id;
+    }
+
+    function getSiteDraft(site) {
+      const drafts = loadDrafts();
+      return drafts[getDraftKey(site)] || drafts[site.name] || null;
+    }
+
+    function saveSiteDraft(site, payload) {
+      const drafts = loadDrafts();
+      drafts[getDraftKey(site)] = payload;
+      saveDrafts(drafts);
+    }
+
+    function renderSummary(rows, targetId = "summary") {
+      const counts = rows.reduce((acc, row) => {
+        acc[row.priority] = (acc[row.priority] || 0) + 1;
+        return acc;
+      }, {});
+      const items = [
+        ["总数", rows.length],
+        ["S", counts.S || 0],
+        ["A", counts.A || 0],
+        ["B", counts.B || 0],
+        ["C/X", (counts.C || 0) + (counts.X || 0)]
+      ];
+      $(targetId).innerHTML = items.map(([label, value]) => `
+        <div class="stat">
+          <div class="stat-n">${value}</div>
+          <div class="stat-t">${label}</div>
+        </div>
+      `).join("");
+    }
+
+    function normalizeRow(row) {
+      return {
+        ...row,
+        pageType: inferPageTypeFromRow(row),
+        effectsSuitability: row.effectsSuitability || row.effects || "偏是",
+        filterStatus: row.filterStatus || "未做",
+        writerDispatchStatus: row.writerDispatchStatus || "未分发"
+      };
+    }
+
+    function getFestivalMeta(row) {
+      const event = row.event ? { name: row.event, date: row.eventDate || "" } : findEvent(row.keyword);
+      if (!event) return "";
+      const parts = [event.name || row.event || ""].filter(Boolean);
+      const date = row.eventDate || event.date || "";
+      if (date) parts.push(date);
+      if (typeof row.days === "number") {
+        parts.push(`${row.days >= 0 ? "还有" : "已过"} ${Math.abs(row.days)} 天`);
+      }
+      return parts.join(" · ");
+    }
+
+    function renderKeywordCell(row) {
+      const meta = getFestivalMeta(row);
+      return `
+        <span class="keyword-main">${escapeHtml(row.keyword)}</span>
+        ${meta ? `<span class="keyword-meta">${escapeHtml(meta)}</span>` : ""}
+      `;
+    }
+
+    function pill(priority) {
+      return `<span class="pill p-${priority.toLowerCase()}">${priority}</span>`;
+    }
+
+    function rowClass(value) {
+      if (value === "做" || value === "是") return "yes";
+      if (value.includes("不") || value === "否") return "no";
+      return "partial";
+    }
+
+    function inferPageTypeFromRow(row) {
+      if (row.pageType) return row.pageType;
+      const legacy = String(row.effects || "").toLowerCase();
+      if (legacy.includes("prompt")) return "prompt";
+      if (legacy.includes("blog")) return "blog";
+      if (legacy.includes("feature")) return "features";
+      return "effects";
+    }
+
+    function renderPageTypeOptions(selectedValue) {
+      return PAGE_TYPES.map(type => `
+        <option value="${escapeHtml(type.value)}" ${type.value === selectedValue ? "selected" : ""}>${escapeHtml(type.label)}</option>
+      `).join("");
+    }
+
+    function renderEditableTable(rows) {
+      const tbody = $("resultBody");
+      if (!rows.length) {
+        currentRows = [];
+        renderSummary([]);
+        tbody.innerHTML = `<tr><td colspan="8" class="empty">还没有生成结果。</td></tr>`;
+        return;
+      }
+      currentRows = rows.map(normalizeRow);
+      tbody.innerHTML = currentRows.map(row => `
+        <tr>
+          <td>${renderKeywordCell(row)}</td>
+          <td>${pill(row.priority)}</td>
+          <td class="${rowClass(row.doIt)}">${escapeHtml(row.doIt)}</td>
+          <td>
+            <select data-field="pageType" data-keyword="${escapeHtml(row.keyword)}">
+              ${renderPageTypeOptions(row.pageType)}
+            </select>
+          </td>
+          <td class="${rowClass(row.effectsSuitability)}">${escapeHtml(row.effectsSuitability)}</td>
+          <td>${escapeHtml(row.conclusion)}</td>
+          <td>
+            <select data-field="filterStatus" data-keyword="${escapeHtml(row.keyword)}">
+              <option value="未做" ${row.filterStatus === "未做" ? "selected" : ""}>未做</option>
+              <option value="已做" ${row.filterStatus === "已做" ? "selected" : ""}>已做</option>
+            </select>
+          </td>
+          <td>
+            <select data-field="writerDispatchStatus" data-keyword="${escapeHtml(row.keyword)}">
+              <option value="未分发" ${row.writerDispatchStatus === "未分发" ? "selected" : ""}>未分发</option>
+              <option value="已分发" ${row.writerDispatchStatus === "已分发" ? "selected" : ""}>已分发</option>
+            </select>
+          </td>
+        </tr>
+      `).join("");
+      bindRowSelects();
+      renderSummary(currentRows, "summary");
+    }
+
+    function renderReadOnlyTable(rows, emptyText, targetBodyId) {
+      const tbody = $(targetBodyId);
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="empty">${escapeHtml(emptyText)}</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = rows.map(row => `
+        <tr>
+          <td>${renderKeywordCell(row)}</td>
+          <td>${pill(row.priority)}</td>
+          <td class="${rowClass(row.doIt)}">${escapeHtml(row.doIt)}</td>
+          <td>${escapeHtml(row.pageType)}</td>
+          <td class="${rowClass(row.effectsSuitability)}">${escapeHtml(row.effectsSuitability)}</td>
+          <td>${escapeHtml(row.conclusion)}</td>
+          <td>${escapeHtml(row.filterStatus)}</td>
+          <td>${escapeHtml(row.writerDispatchStatus)}</td>
+        </tr>
+      `).join("");
+    }
+
+    function bindRowSelects() {
+      document.querySelectorAll("#resultBody select").forEach(node => {
+        node.addEventListener("change", (event) => {
+          const keyword = event.target.getAttribute("data-keyword");
+          const field = event.target.getAttribute("data-field");
+          const row = currentRows.find(item => item.keyword === keyword);
+          if (row && field) {
+            row[field] = event.target.value;
+            persistCurrentSiteState();
+          }
+        });
+      });
+    }
+
+    function normalize(line) {
+      return line
+        .trim()
+        .replace(/^\d+\.\s*/, "")
+        .replace(/^[*-]\s*/, "")
+        .replace(/\|/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function extractKeywords(text) {
+      const lines = String(text || "").split(/\r?\n/);
+      const items = [];
+      for (const raw of lines) {
+        const line = raw.trim();
+        if (!line) continue;
+        if (/^\|?[\s\-:|]+\|?$/.test(line)) continue;
+        if (line.includes("|")) {
+          const cells = line.split("|").map(s => s.trim()).filter(Boolean);
+          if (!cells.length) continue;
+          const candidate = cells[0];
+          if (candidate && !/keyword|关键词|优先级|是否做|适合页面|适不适合 effects 页|结论/i.test(candidate) && !/^-+$/.test(candidate)) {
+            items.push(candidate);
+          }
+          continue;
+        }
+        const cleaned = normalize(line);
+        if (cleaned) items.push(cleaned);
+      }
+      return [...new Set(items)];
+    }
+
+    function findEvent(keyword) {
+      return EVENT_RULES.find(rule => rule.re.test(keyword));
+    }
+
+    function hasAny(keyword, patterns) {
+      return patterns.some(pattern => pattern.test(keyword));
+    }
+
+    function guessSerpPageType(keyword) {
+      const k = keyword.toLowerCase();
+      if (hasAny(k, [/prompt/])) return "prompt";
+      if (hasAny(k, [/poster/, /infographic/, /poster making/, /ai poster/])) return "features";
+      if (hasAny(k, [/video/])) return "features";
+      if (hasAny(k, [/blog/])) return "blog";
+      if (hasAny(k, [/photo/, /editor/, /editing/, /generator/, /face to face/, /close up/, /dress change/])) return "effects";
+      return "blog";
+    }
+
+    function classify(keyword, refDate) {
+      const k = keyword.toLowerCase();
+      const event = findEvent(keyword);
+      const days = event ? diffDays(refDate, event.date) : null;
+      const hasPrompt = hasAny(k, [/prompt/]);
+      const hasPoster = hasAny(k, [/poster/]);
+      const hasInfographic = hasAny(k, [/infographic/]);
+      const hasVideo = hasAny(k, [/video/]);
+      const hasPhoto = hasAny(k, [/photo/, /photo editor/, /photo editing/, /photo generator/]);
+      const isReligious = hasAny(k, [/ganpati/, /ganesh/, /janmashtami/, /vratham/, /varalakshmi/]);
+      const isCuteReligious = /cute/.test(k) && isReligious;
+
+      let priority = "B";
+      let doIt = "可做";
+      let pageType = guessSerpPageType(keyword);
+      let effectsSuitability = hasPhoto ? "是" : hasVideo ? "偏是" : "否";
+      let conclusion = "可做，但不是当前第一优先";
+
+      if (isCuteReligious) {
+        return buildRow(keyword, "X", "不建议原词", "effects", "否", "宗教词加 cute 有风险，建议换词", days, event);
+      }
+
+      if (hasPrompt) {
+          return buildRow(keyword, "C", "做", "prompt", "否", "更适合 prompt 页，不建议放 effects 页", days, event);
+      }
+
+      if (hasPoster || hasInfographic) {
+        if (event && days !== null && days <= 14) {
+          return buildRow(keyword, "S", "做", "features", "否", "节日窗口很近，更适合 features 页", days, event);
+        }
+        if (event && days !== null && days <= 30) {
+          return buildRow(keyword, "A", "做", "features", "否", "适合提前占位，更适合 features 页", days, event);
+        }
+        return buildRow(keyword, "C", "做", "features", "否", "更适合 features 页，不建议放 effects 页", days, event);
+      }
+
+      if (/long exposure/.test(k)) {
+        return buildRow(keyword, "A", "做", "effects", "是", "常青摄影效果词，可以做", days, event);
+      }
+
+      if (/magical butterfly/.test(k)) {
+        return buildRow(keyword, "A", "做", "effects", "是", "视觉效果强，适合 effects 页", days, event);
+      }
+
+      if (/mass hero/.test(k)) {
+        return buildRow(keyword, "A", "做", "effects", "是", "人设感强，适合做风格化效果页", days, event);
+      }
+
+      if (event) {
+        if (days !== null && days < -7) {
+          priority = "C";
+          doIt = "先不做";
+          pageType = guessSerpPageType(keyword);
+          effectsSuitability = hasVideo ? "偏否" : hasPhoto ? "否" : "否";
+          conclusion = "节点已过，除非回收长尾流量，否则优先级不高";
+        } else if (days !== null && days <= 3) {
+          priority = "S";
+          doIt = "做";
+          pageType = guessSerpPageType(keyword);
+          effectsSuitability = hasVideo ? "偏是" : hasPhoto ? "是" : "否";
+          conclusion = "窗口就在现在，适合先做专题效果";
+        } else if (days !== null && days <= 14) {
+          priority = hasVideo ? "A" : "S";
+          doIt = "做";
+          pageType = guessSerpPageType(keyword);
+          effectsSuitability = hasVideo ? "偏是" : hasPhoto ? "是" : "否";
+          conclusion = "节日窗口很近，适合先占位";
+        } else if (days !== null && days <= 30) {
+          priority = hasVideo ? "B" : "A";
+          doIt = "可做";
+          pageType = guessSerpPageType(keyword);
+          effectsSuitability = hasVideo ? "偏是" : hasPhoto ? "是" : "否";
+          conclusion = "适合提前占位，等窗口放量";
+        } else {
+          priority = "B";
+          doIt = "可做";
+          pageType = guessSerpPageType(keyword);
+          effectsSuitability = hasVideo ? "偏是" : (hasPhoto ? "是" : "偏否");
+          conclusion = "有事件属性，但还没到最强窗口";
+        }
+        return buildRow(keyword, priority, doIt, pageType, effectsSuitability, conclusion, days, event);
+      }
+
+      if (hasVideo) {
+        return buildRow(keyword, "B", "可做", "features", "偏是", "视频词可做，更适合 features 页", days, event);
+      }
+
+      if (hasPhoto) {
+        return buildRow(keyword, "B", "可做", "effects", "是", "意图清晰，适合做成常青 effects 页", days, event);
+      }
+
+      return buildRow(keyword, "C", "先不做", "blog", "否", "意图不够明确，更适合先观察或写 blog", days, event);
+    }
+
+    function buildRow(keyword, priority, doIt, pageType, effectsSuitability, conclusion, days, event) {
+      return {
+        keyword,
+        priority,
+        doIt,
+        pageType,
+        effectsSuitability,
+        conclusion,
+        filterStatus: "未做",
+        writerDispatchStatus: "未分发",
+        days,
+        event: event?.name || "",
+        eventDate: event?.date || ""
+      };
+    }
+
+    function priorityRank(priority) {
+      return { S: 0, A: 1, B: 2, C: 3, X: 4 }[priority] ?? 9;
+    }
+
+    function generateRows() {
+      const refDate = $("refDate").value || toISODate(new Date());
+      const raw = $("keywords").value || "";
+      let rows = extractKeywords(raw).map(keyword => classify(keyword, refDate));
+      rows = rows.map(row => {
+        const existing = currentRows.find(item => item.keyword === row.keyword);
+        return existing ? {
+          ...row,
+          filterStatus: existing.filterStatus || row.filterStatus,
+          writerDispatchStatus: existing.writerDispatchStatus || row.writerDispatchStatus
+        } : row;
+      });
+      if (!$("keepOrder").checked && $("sortByPriority").checked) {
+        rows.sort((a, b) => priorityRank(a.priority) - priorityRank(b.priority));
+      }
+      return rows;
+    }
+
+    function persistCurrentSiteState() {
+      const site = getSiteById(currentSiteId);
+      saveSiteDraft(site, {
+        refDate: $("refDate").value || toISODate(new Date()),
+        archiveDate: $("archiveDate").value || toISODate(new Date()),
+        input: $("keywords").value || "",
+        rows: currentRows
+      });
+    }
+
+    function loadCurrentSiteState() {
+      const site = getSiteById(currentSiteId);
+      const draft = getSiteDraft(site);
+      if (draft) {
+        $("refDate").value = draft.refDate || toISODate(new Date());
+        $("archiveDate").value = draft.archiveDate || toISODate(new Date());
+        $("keywords").value = draft.input || "";
+        renderEditableTable(draft.rows || []);
+        return;
+      }
+      $("keywords").value = "";
+      setDefaultDates();
+      renderEditableTable([]);
+    }
+
+    function renderHistory() {
+      const site = getSiteById(currentSiteId);
+      const records = loadRecords().filter(record => siteMatches(record, site));
+      if (!records.length) {
+        $("siteHistory").innerHTML = `
+          <div class="history-empty">${escapeHtml(site.name)} 还没有保存记录。生成表格后，这里会自动新增一条历史表格。</div>
+        `;
+        renderHistoryResult(null);
+        return;
+      }
+      const sortedRecords = records
+        .slice()
+        .sort((a, b) => String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")));
+      if (!selectedRecordId || !sortedRecords.some(record => String(record.id) === String(selectedRecordId))) {
+        selectedRecordId = String(sortedRecords[0].id);
+      }
+      $("siteHistory").innerHTML = `
+        <div class="history-title">往期关键词表格</div>
+        <div class="history-meta">这里只展示手动保存过的记录。点击任意一条，会在下方显示那次结果。</div>
+        ${sortedRecords.map(record => `
+          <div class="history-item ${String(record.id) === String(selectedRecordId) ? "active" : ""}" data-record-id="${escapeHtml(String(record.id))}">
+            <div class="history-date">${escapeHtml(record.date || "-")}</div>
+            <div class="history-meta">保存时间 ${escapeHtml(formatDateTime(record.createdAt))}</div>
+            <div class="history-tags">
+              <span class="history-tag">${escapeHtml(String((record.rows || []).length))} 个关键词</span>
+              <span class="history-tag">参考日期 ${escapeHtml(record.refDate || record.date || "-")}</span>
+            </div>
+            <button class="history-delete" type="button" title="删除这条历史记录" data-delete-record-id="${escapeHtml(String(record.id))}">×</button>
+          </div>
+        `).join("")}
+      `;
+      $("siteHistory").querySelectorAll(".history-item").forEach(node => {
+        node.addEventListener("click", () => {
+          const recordId = node.getAttribute("data-record-id");
+          const record = sortedRecords.find(item => String(item.id) === String(recordId));
+          if (!record) return;
+          selectedRecordId = String(record.id);
+          renderHistoryResult(record);
+          renderHistory();
+        });
+      });
+      $("siteHistory").querySelectorAll(".history-delete").forEach(node => {
+        node.addEventListener("click", (event) => {
+          event.stopPropagation();
+          deleteHistoryRecord(node.getAttribute("data-delete-record-id"));
+        });
+      });
+      const selected = sortedRecords.find(record => String(record.id) === String(selectedRecordId)) || sortedRecords[0] || null;
+      renderHistoryResult(selected);
+    }
+
+    function renderHistoryResult(record) {
+      const body = $("historyResultBody");
+      if (!record) {
+        $("historyResultMeta").innerHTML = "";
+        renderSummary([], "historySummary");
+        body.innerHTML = `<tr><td colspan="8" class="empty">请从上方历史记录中选择一条。</td></tr>`;
+        return;
+      }
+      const rows = (record.rows || []).map(normalizeRow);
+      $("historyResultMeta").innerHTML = [
+        ["记录日期", record.date || "-"],
+        ["参考日期", record.refDate || "-"],
+        ["保存时间", formatDateTime(record.createdAt)],
+        ["关键词数", String(rows.length)]
+      ].map(([label, value]) => `<span class="history-result-tag">${escapeHtml(label)} ${escapeHtml(value)}</span>`).join("");
+      renderSummary(rows, "historySummary");
+      renderReadOnlyTable(rows, "这条历史记录没有内容。", "historyResultBody");
+    }
+
+    function deleteHistoryRecord(recordId) {
+      const site = getSiteById(currentSiteId);
+      const records = loadRecords();
+      const nextRecords = records.filter(record => !(siteMatches(record, site) && String(record.id) === String(recordId)));
+      if (nextRecords.length === records.length) return;
+      saveRecords(nextRecords);
+      if (String(selectedRecordId) === String(recordId)) {
+        const nextSiteRecords = nextRecords
+          .filter(record => siteMatches(record, site))
+          .sort((a, b) => String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")));
+        selectedRecordId = nextSiteRecords[0] ? String(nextSiteRecords[0].id) : "";
+      }
+      renderHistory();
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "-";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      const hh = String(date.getHours()).padStart(2, "0");
+      const mm = String(date.getMinutes()).padStart(2, "0");
+      return `${y}-${m}-${d} ${hh}:${mm}`;
+    }
+
+    function copyMarkdown(rows) {
+      const header = ["关键词", "优先级", "是否做", "适合页面", "适不适合 effects 页", "结论", "滤镜是否制作", "是否分发写手"];
+      const sep = ["---", "---", "---", "---", "---", "---", "---", "---"];
+      const body = rows.map(row => [
+        row.keyword,
+        row.priority,
+        row.doIt,
+        row.pageType || inferPageTypeFromRow(row),
+        row.effectsSuitability || row.effects || "偏是",
+        row.conclusion,
+        row.filterStatus || "未做",
+        row.writerDispatchStatus || "未分发"
+      ]);
+      return [
+        `| ${header.join(" | ")} |`,
+        `| ${sep.join(" | ")} |`,
+        ...body.map(cols => `| ${cols.map(value => String(value).replace(/\|/g, "｜")).join(" | ")} |`)
+      ].join("\n");
+    }
+
+    function getComparableRecordPayload(record) {
+      return JSON.stringify({
+        refDate: record.refDate || "",
+        date: record.date || "",
+        input: record.input || "",
+        rows: (record.rows || []).map(row => ({
+          keyword: row.keyword,
+          priority: row.priority,
+          doIt: row.doIt,
+          pageType: row.pageType || inferPageTypeFromRow(row),
+          effectsSuitability: row.effectsSuitability || row.effects || "偏是",
+          conclusion: row.conclusion,
+          filterStatus: row.filterStatus || "未做",
+          writerDispatchStatus: row.writerDispatchStatus || "未分发",
+          event: row.event || "",
+          eventDate: row.eventDate || "",
+          days: row.days ?? null
+        }))
+      });
+    }
+
+    function saveCurrentRecord(rows, options = {}) {
+      const site = getSiteById(currentSiteId);
+      const records = loadRecords();
+      const snapshotRows = (currentRows.length ? currentRows : rows).map(row => ({ ...normalizeRow(row) }));
+      const record = {
+        id: Date.now(),
+        siteId: site.id,
+        siteName: site.name,
+        date: $("archiveDate").value || toISODate(new Date()),
+        refDate: $("refDate").value || toISODate(new Date()),
+        createdAt: new Date().toISOString(),
+        input: ($("keywords").value || snapshotRows.map(row => row.keyword).join("\n")),
+        rows: snapshotRows
+      };
+      const latestForSite = records.find(item => siteMatches(item, site));
+      if (options.skipDuplicate && latestForSite && getComparableRecordPayload(latestForSite) === getComparableRecordPayload(record)) {
+        selectedRecordId = String(latestForSite.id);
+        renderHistory();
+        return latestForSite;
+      }
+      records.unshift(record);
+      saveRecords(records);
+      selectedRecordId = String(record.id);
+      persistCurrentSiteState();
+      renderHistory();
+      return record;
+    }
+
+    function exportCurrentSiteRecords() {
+      const site = getSiteById(currentSiteId);
+      const records = loadRecords().filter(record => siteMatches(record, site));
+      const blob = new Blob([JSON.stringify(records, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${site.id}-keyword-records-${toISODate(new Date())}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function addSite() {
+      const name = $("newSiteName").value.trim();
+      const icon = $("newSiteIcon").value.trim();
+      if (!name) return;
+      const sites = loadSites();
+      let baseId = slugify(name);
+      let finalId = baseId;
+      let count = 2;
+      while (sites.some(site => site.id === finalId)) {
+        finalId = `${baseId}-${count}`;
+        count += 1;
+      }
+      const site = { id: finalId, name, icon };
+      sites.push(site);
+      saveSites(sites);
+      $("newSiteName").value = "";
+      $("newSiteIcon").value = "";
+      renderSiteTabs();
+      renderSiteList();
+      setCurrentSite(site.id);
+    }
+
+    function deleteSite(siteId) {
+      const sites = loadSites();
+      if (sites.length <= 1) return;
+      const site = sites.find(item => item.id === siteId);
+      if (!site) return;
+      const shouldDelete = window.confirm(`确认删除站点“${site.name}”吗？这个站点的历史表格和草稿也会一起移除。`);
+      if (!shouldDelete) return;
+
+      const nextSites = sites.filter(item => item.id !== siteId);
+      saveSites(nextSites);
+
+      const drafts = loadDrafts();
+      delete drafts[siteId];
+      delete drafts[site.name];
+      saveDrafts(drafts);
+
+      const nextRecords = loadRecords().filter(record => !siteMatches(record, site));
+      saveRecords(nextRecords);
+
+      const fallbackSite = nextSites.find(item => item.id !== siteId) || nextSites[0];
+      renderSiteTabs();
+      renderSiteList();
+      setCurrentSite(fallbackSite.id);
+    }
+
+    function bind() {
+      $("manageToggle").addEventListener("click", () => {
+        $("managePanel").classList.toggle("open");
+      });
+
+      $("addSiteBtn").addEventListener("click", addSite);
+      $("newSiteName").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          addSite();
+        }
+      });
+      $("newSiteIcon").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          addSite();
+        }
+      });
+
+      $("generateBtn").addEventListener("click", () => {
+        const rows = generateRows();
+        renderEditableTable(rows);
+        $("keywords").value = "";
+        persistCurrentSiteState();
+      });
+
+      $("resultSaveBtn").addEventListener("click", () => {
+        const rows = currentRows.length ? currentRows : generateRows();
+        if (!rows.length) return;
+        renderEditableTable(rows);
+        saveCurrentRecord(rows, { skipDuplicate: true });
+        $("resultSaveBtn").textContent = "已保存";
+        setTimeout(() => $("resultSaveBtn").textContent = "保存到往期关键词表格", 1200);
+      });
+
+      $("copyBtn").addEventListener("click", async () => {
+        const rows = currentRows.length ? currentRows : generateRows();
+        renderEditableTable(rows);
+        await navigator.clipboard.writeText(copyMarkdown(rows));
+        $("copyBtn").textContent = "已复制";
+        setTimeout(() => $("copyBtn").textContent = "复制 Markdown", 1200);
+      });
+
+      $("exportBtn").addEventListener("click", exportCurrentSiteRecords);
+
+      $("keepOrder").addEventListener("change", () => {
+        $("sortByPriority").checked = !$("keepOrder").checked;
+      });
+
+      $("sortByPriority").addEventListener("change", () => {
+        $("keepOrder").checked = !$("sortByPriority").checked;
+      });
+
+      ["keywords", "refDate", "archiveDate"].forEach(id => {
+        $(id).addEventListener("input", () => {
+          persistCurrentSiteState();
+        });
+      });
+
+      window.addEventListener("hashchange", () => {
+        const siteId = getSelectedSiteId();
+        if (siteId !== currentSiteId) {
+          setCurrentSite(siteId, { silentHash: true });
+        }
+      });
+    }
+
+    function init() {
+      loadSites();
+      setDefaultDates();
+      bind();
+      currentSiteId = getSelectedSiteId();
+      renderSiteTabs();
+      renderSiteList();
+      updateResultHeader();
+      loadCurrentSiteState();
+      renderHistory();
+      if (!location.hash) {
+        location.hash = `site=${encodeURIComponent(currentSiteId)}`;
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
